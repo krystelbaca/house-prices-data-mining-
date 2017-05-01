@@ -54,11 +54,6 @@ def delete_missing_objects(data, type):
 
     return data
 
-def replace_missing_values_with_constant(data, column, constant):
-    temp = data[column].fillna(constant)
-    data[column] = temp
-
-    return data
 
 def replace_missing_values_with_mean(data, column):
     temp = data[column].fillna(data[column].mean())
