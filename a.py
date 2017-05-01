@@ -153,8 +153,19 @@ def replace_missing_values_with_constant_alley(data):
     data['Alley'] = data['Alley'].fillna('None')
     return data
 
+def replace_mv_sotano(data):
+    for col in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'):
+        data[col] = data[col].fillna('NoBsmt')
 
+    return data
 
+def replace_mv_fireplaces(data):
+    data['FireplaceQu'] = data['FireplaceQu'].fillna('NoFP')
+    return data
+
+def replace_mv_misc(data):
+    data['MiscFeature'] = data['MiscFeature'].fillna('NoMisc')
+    return data
 
 
 
@@ -183,14 +194,19 @@ if __name__ == '__main__':
 
     #lotArea_influye_salePrice(data)
     #poolArea_inluye_precio(data)
-    #replace_missing_values_with_constant(data)
+    replace_missing_values_with_constant(data)
     replace_missing_values_with_constant_alley(data)
+    replace_mv_sotano(data)
+    replace_mv_misc(data)
+    replace_mv_fireplaces(data)
+    print(data['FireplaceQu'])
     show_data_info(data)
-    #temp = convert_nan_to_na(data)
+    #print(data['BsmtCond'])
+    temp = convert_nan_to_na(data)
     #temp = drop_garage_features(temp)
     #temp = replace_mv_poolqc(temp)
     #temp = replace_mv_fence(temp)
-    #show_data_info(temp)
+    show_data_info(temp)
 
     
     #create_histogram(data)
