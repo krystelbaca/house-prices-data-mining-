@@ -66,8 +66,6 @@ def replace_missing_values_with_mean(data, column):
 
     return data
 
-
-
     plt.show()
 
 
@@ -82,10 +80,6 @@ def convert_nan_to_na(data):
     data['Electrical'] = data['Electrical'].fillna('NA')
 
     return data
-
-
-
-
 
 
 def lotArea_influye_salePrice(data):
@@ -151,6 +145,13 @@ def replace_mv_fence(data):
     return data
 
 
+def replace_missing_values_with_constant(data):
+    data['LotFrontage'] = data['LotFrontage'].fillna('-1')
+    return data
+
+def replace_missing_values_with_constant_alley(data):
+    data['Alley'] = data['Alley'].fillna('None')
+    return data
 
 
 
@@ -181,7 +182,9 @@ if __name__ == '__main__':
     
 
     #lotArea_influye_salePrice(data)
-    poolArea_inluye_precio(data)
+    #poolArea_inluye_precio(data)
+    #replace_missing_values_with_constant(data)
+    replace_missing_values_with_constant_alley(data)
     show_data_info(data)
     #temp = convert_nan_to_na(data)
     #temp = drop_garage_features(temp)
