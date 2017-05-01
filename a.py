@@ -114,6 +114,25 @@ def lotArea_influye_salePrice(data):
     plt.yticks(np.arange(0, max(priceArray), 20000))
     plt.show()
 
+def poolArea_inluye_precio(data):
+    pool = data['PoolArea'].value_counts()
+    poolKeys = pool.keys()
+    priceArray = []
+    keyArray = []
+    for number in poolKeys:
+        subset = data.loc[data['PoolArea'] == number]
+        keyArray.append(str(number))
+        priceArray.append(subset["SalePrice"].mean())
+
+    plt.bar(np.arange(len(priceArray)), priceArray, color="blue")
+
+    plt.ylabel('precio')
+    plt.xlabel('Tamano pool')
+    plt.title('El tamano de la piscina influye en el precio')
+    plt.xticks(np.arange(0, len(keyArray)), keyArray)
+    plt.yticks(np.arange(0, max(priceArray), 20000))
+    plt.show()
+
 
 def drop_garage_features(data):
     dtd = data.drop('GarageYrBlt', 1)
@@ -162,12 +181,13 @@ if __name__ == '__main__':
     
 
     #lotArea_influye_salePrice(data)
-    #show_data_info(data)
-    temp = convert_nan_to_na(data)
-    temp = drop_garage_features(temp)
-    temp = replace_mv_poolqc(temp)
-    temp = replace_mv_fence(temp)
-    show_data_info(temp)
+    poolArea_inluye_precio(data)
+    show_data_info(data)
+    #temp = convert_nan_to_na(data)
+    #temp = drop_garage_features(temp)
+    #temp = replace_mv_poolqc(temp)
+    #temp = replace_mv_fence(temp)
+    #show_data_info(temp)
 
     
     #create_histogram(data)
