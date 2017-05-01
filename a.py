@@ -69,18 +69,6 @@ def replace_missing_values_with_mean(data, column):
     plt.show()
 
 
-def convert_nan_to_na(data):
-    data['Alley'] = data['Alley'].fillna('NA')
-
-    for col in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'):
-        data[col] = data[col].fillna('NA')
-
-    data['FireplaceQu'] = data['FireplaceQu'].fillna('NA')
-    data['MiscFeature'] = data['MiscFeature'].fillna('NA')
-    data['Electrical'] = data['Electrical'].fillna('NA')
-
-    return data
-
 
 def lotArea_influye_salePrice(data):
     
@@ -175,8 +163,10 @@ def replace_mv_misc(data):
 
 
 
+
+
 if __name__ == '__main__':
-    filePath = "training_data.csv"
+    filePath = "train.csv"
 
     data = open_file(filePath)
     
@@ -194,21 +184,18 @@ if __name__ == '__main__':
 
     #lotArea_influye_salePrice(data)
     #poolArea_inluye_precio(data)
+    drop_garage_features(data)
     replace_missing_values_with_constant(data)
     replace_missing_values_with_constant_alley(data)
+    replace_mv_fence(data)
+    replace_mv_poolqc(data)
     replace_mv_sotano(data)
     replace_mv_misc(data)
     replace_mv_fireplaces(data)
     print(data['FireplaceQu'])
     show_data_info(data)
     #print(data['BsmtCond'])
-    temp = convert_nan_to_na(data)
-    #temp = drop_garage_features(temp)
-    #temp = replace_mv_poolqc(temp)
-    #temp = replace_mv_fence(temp)
-    show_data_info(temp)
 
-    
     #create_histogram(data)
     #create_density_plot(data)
     #create_whisker_plots(data)
