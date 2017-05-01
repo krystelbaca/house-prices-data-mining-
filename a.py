@@ -66,32 +66,27 @@ def replace_missing_values_with_mean(data, column):
 
     return data
 
-def numero_banios_influye_precio(data):
-    
-    numbBath = data['bathrooms'].value_counts()
-    numbBathKeys = numbBath.keys()
 
-    priceArray = []
-    for number in numbBathKeys:
-        subset = data.loc[data['bathrooms'] == number]
-        print('Numero de banios:' + str(number))
-        print(subset['price'])
-        priceArray.append(subset["price"].mean())
-
-    print(numbBathKeys)
-    print(priceArray)
-
-    width = .2
-    plt.bar(numbBathKeys, priceArray, width, color="blue")
-
-    plt.ylabel('precio')
-    plt.xlabel('#banios')
-    plt.title('banios inlfuye precio')
-    plt.xticks(np.arange(0, max(numbBathKeys), .5))
-    plt.yticks(np.arange(0, 60000, 5000))
-    
 
     plt.show()
+
+
+def convert_nan_to_na(data):
+    data['Alley'] = data['Alley'].fillna('NA')
+
+    for col in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2'):
+        data[col] = data[col].fillna('NA')
+
+    data['FireplaceQu'] = data['FireplaceQu'].fillna('NA')
+    data['MiscFeature'] = data['MiscFeature'].fillna('NA')
+    data['Electrical'] = data['Electrical'].fillna('NA')
+
+    return data
+
+
+
+
+
 
 def lotArea_influye_salePrice(data):
     
@@ -117,10 +112,40 @@ def lotArea_influye_salePrice(data):
     plt.title('Tamano terreno influye precio final')
     plt.xticks(np.arange(0, len(keyArray)), keyArray)
     plt.yticks(np.arange(0, max(priceArray), 20000))
-    plt.show()   
+    plt.show()
+
+
+def drop_garage_features(data):
+    dtd = data.drop('GarageYrBlt', 1)
+    dtd = dtd.drop('GarageType', 1)
+    dtd = dtd.drop('GarageFinish', 1)
+    dtd = dtd.drop('GarageQual', 1)
+    dtd = dtd.drop('GarageCond', 1)
+    return dtd
+
+def replace_mv_poolqc(data):
+    data['PoolQC'] = data['PoolQC'].fillna('NoPool')
+    return data
+
+def replace_mv_fence(data):
+    data['Fence'] = data['Fence'].fillna('NoFence')
+    return data
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
-    filePath = "train.csv"
+    filePath = "training_data.csv"
 
     data = open_file(filePath)
     
@@ -135,8 +160,15 @@ if __name__ == '__main__':
     #show_data_info(data)
     #print(data[0:10])
     
-    #numero_banios_influye_precio(data)
-    lotArea_influye_salePrice(data)
+
+    #lotArea_influye_salePrice(data)
+    #show_data_info(data)
+    temp = convert_nan_to_na(data)
+    temp = drop_garage_features(temp)
+    temp = replace_mv_poolqc(temp)
+    temp = replace_mv_fence(temp)
+    show_data_info(temp)
+
     
     #create_histogram(data)
     #create_density_plot(data)
