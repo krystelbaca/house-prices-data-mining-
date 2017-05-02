@@ -15,6 +15,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from pandas.tools.plotting import scatter_matrix
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
+from sklearn import metrics
 
 def open_file(fileName):
     data = pd.read_csv(fileName)
@@ -105,9 +108,11 @@ def replace_mv_MasVnrType(data):
     data['MasVnrType'] = data['MasVnrType'].fillna('NA')
     return data
 
-def replace_missing_values_with_mode(data):
-    mode = data['Electrical'].mode()
-    data['Electrical'] = data['Electrical'].fillna(mode.iloc[0])
+def replace_mv_MasVnrArea(data):
+    data['MasVnrArea'] = data['MasVnrArea'].fillna(-1)
+    return data
+def replace_missing_values_electrical(data):
+    data['Electrical'] = data['Electrical'].fillna("NA")
     return data
 
 
@@ -168,8 +173,10 @@ def z_score_normalization(data):
 
     return new_data
 
-def principal_components_analysis(n_components):
-    X = data
+def principal_components_analysis(data, n_components):
+    features = data[:, 0:-1]
+    target = data[:, -1]
+    X = features
     Y = target
 
     # First 10 rows
@@ -222,6 +229,45 @@ def min_max_scaler(data_without_target, target):
     print("---------------------- TERMINA NORMALIZACION")
     return new_feature_vector
 
+def data_splitting(data_features, data_targets, test_size):
+    """
+    This function returns four subsets that represents training and test data
+    :param data: numpy array
+    :return: four subsets that represents data train and data test
+    """
+    data_features_train, data_features_test, data_targets_train, data_targets_test = \
+        train_test_split(data_features,
+                         data_targets,
+                         test_size = test_size)
+
+    return data_features_train, data_features_test, data_targets_train, data_targets_test
+
+def decision_tree_training(data):
+
+    feature_vector = data[:, 0:-1]
+    targets = data[:, -1]
+
+    data_features_train, data_features_test, data_targets_train, data_targets_test = \
+        train_test_split(feature_vector,
+                         targets,
+                         test_size=0.25)
+
+    # Model declaration
+    """
+    Parameters to select:
+    criterion: "mse"
+    max_depth: maximum depth of tree, default: None
+    """
+    dec_tree_reg = DecisionTreeRegressor(criterion='mse', max_depth=3)
+    dec_tree_reg.fit(data_features_train, data_targets_train)
+
+    # Model evaluation
+    test_data_predicted = dec_tree_reg.predict(data_features_test)
+
+    error = metrics.mean_absolute_error(data_targets_test, test_data_predicted)
+
+    print('Total Error: ' + str(error))
+
 
 if __name__ == '__main__':
     filePath = "train.csv"
@@ -237,13 +283,14 @@ if __name__ == '__main__':
     temp = replace_mv_misc(temp)
     temp = replace_mv_fireplaces(temp)
     temp = replace_mv_MasVnrType(temp)
-    temp = replace_missing_values_with_mode(temp)
-    temp['MSSubClass'] = reject_outliers(temp['MSSubClass'])
-    temp['OverallQual'] = reject_outliers(temp['OverallQual'])
-    temp['OverallCond'] = reject_outliers(temp['OverallCond'])
-    temp['1stFlrSF'] = reject_outliers(temp['1stFlrSF'])
-    temp['2ndFlrSF'] = reject_outliers(temp['2ndFlrSF'])
-    temp['BsmtFullBath'] = reject_outliers(temp['BsmtFullBath'])
+    temp = replace_mv_MasVnrArea(temp)
+    temp = replace_missing_values_electrical(temp)
+    #temp['MSSubClass'] = reject_outliers(temp['MSSubClass'])
+    #temp['OverallQual'] = reject_outliers(temp['OverallQual'])
+    #temp['OverallCond'] = reject_outliers(temp['OverallCond'])
+    #temp['1stFlrSF'] = reject_outliers(temp['1stFlrSF'])
+    #temp['2ndFlrSF'] = reject_outliers(temp['2ndFlrSF'])
+    #temp['BsmtFullBath'] = reject_outliers(temp['BsmtFullBath'])
 
     #print(data['FireplaceQu'])
     #print(temp['MSSubClass'])
@@ -251,8 +298,10 @@ if __name__ == '__main__':
        # print(temp['Exterior2nd'][i])
     #show_data_info(temp)
     #create_whisker_plot(temp)
-    #temp = convert_data_to_numeric(temp)
-    #z_score_normalization(data)
+    temp = convert_data_to_numeric(temp)
+    temp = z_score_normalization(temp)
+    temp = principal_components_analysis(temp, .90)
+    decision_tree_training(temp)
 
     #print(data['BsmtCond'])
 
