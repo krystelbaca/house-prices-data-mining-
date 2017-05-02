@@ -128,6 +128,14 @@ def convert_data_to_numeric(data):
             numpy_data[:,i] = temp
     return numpy_data
 
+def reject_outliers(data, m=2):
+    return data[abs(data - np.mean(data)) < m * np.std(data)]
+
+def create_whisker_plot(data):
+    print(data.size)
+    data.plot(kind='box', subplots=True, layout=(3,13), sharex=False, sharey=False)
+    plt.show()
+
 def z_score_normalization(data):
     # import data
     """num_features = len(data.columns) - 1
@@ -230,16 +238,23 @@ if __name__ == '__main__':
     temp = replace_mv_fireplaces(temp)
     temp = replace_mv_MasVnrType(temp)
     temp = replace_missing_values_with_mode(temp)
+    temp['MSSubClass'] = reject_outliers(temp['MSSubClass'])
+    temp['OverallQual'] = reject_outliers(temp['OverallQual'])
+    temp['OverallCond'] = reject_outliers(temp['OverallCond'])
+    temp['1stFlrSF'] = reject_outliers(temp['1stFlrSF'])
+    temp['2ndFlrSF'] = reject_outliers(temp['2ndFlrSF'])
+    temp['BsmtFullBath'] = reject_outliers(temp['BsmtFullBath'])
+
     #print(data['FireplaceQu'])
     #print(temp['MSSubClass'])
-    for i in range(len(temp['Exterior2nd'])):
-        print(temp['Exterior2nd'][i])
+    #for i in range(len(temp['Exterior2nd'])):
+       # print(temp['Exterior2nd'][i])
     #show_data_info(temp)
-    temp = convert_data_to_numeric(temp)
+    #create_whisker_plot(temp)
+    #temp = convert_data_to_numeric(temp)
     #z_score_normalization(data)
 
     #print(data['BsmtCond'])
 
     #create_histogram(data)
     #create_density_plot(data)
-    #create_whisker_plots(data)
