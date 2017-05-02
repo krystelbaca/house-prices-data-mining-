@@ -324,7 +324,7 @@ def decision_tree_training(data):
 
 
 if __name__ == '__main__':
-    filePath = "train.csv"
+    filePath = "training_data.csv"
 
     data = open_file(filePath)
 
@@ -353,7 +353,7 @@ if __name__ == '__main__':
     #decision_tree_training(temp)
 
     # Segunda ITERACION
-    '''temp = drop_garage_features(data)
+    temp = drop_garage_features(data)
     temp = replace_missing_values_with_constant(temp)
     temp = replace_missing_values_with_constant_alley(temp)
     temp = replace_mv_fence(temp)
@@ -369,15 +369,15 @@ if __name__ == '__main__':
     # temp['OverallCond'] = reject_outliers(temp['OverallCond'])
     # temp['1stFlrSF'] = reject_outliers(temp['1stFlrSF'])
     # temp['2ndFlrSF'] = reject_outliers(temp['2ndFlrSF'])
-    # temp['BsmtFullBath'] = reject_outliers(temp['BsmtFullBath'])
+    # temp['BsmtFullBath'] = reject_outliers(temp['BsmtFullBath'])'''
 
     temp = convert_data_to_numeric(temp)
     temp = min_max_scaler(temp)
     temp = attribute_subset_selection_with_trees(temp, "Regression")
-    decision_tree_training(temp)'''
+    decision_tree_training(temp)
 
     # Tercera ITERACION
-    temp = drop_garage_features(data)
+    '''temp = drop_garage_features(data)
     temp = replace_missing_values_with_constant(temp)
     temp = replace_missing_values_with_constant_alley(temp)
     temp = replace_mv_fence(temp)
@@ -398,5 +398,5 @@ if __name__ == '__main__':
     temp = convert_data_to_numeric(temp)
     temp = z_score_normalization(temp)
     temp = attribute_subset_selection_with_trees(temp, "Regression")
-    decision_tree_training(temp)
+    decision_tree_training(temp)'''
 
