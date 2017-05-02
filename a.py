@@ -1,3 +1,16 @@
+from sklearn.decomposition import PCA
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.feature_selection import SelectFromModel
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+from sklearn import preprocessing
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn import datasets
+from sklearn import metrics
+from sklearn import tree
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,18 +20,6 @@ def open_file(fileName):
     data = pd.read_csv(fileName)
     return data
 
-def create_histogram(data):
-    data.hist(column = 'bedrooms')
-    plt.show()
-
-def create_density_plot(data):
-    data.plot(kind='density', subplots=True, layout=(3, 3), sharex=False)
-    plt.show()
-
-def create_whisker_plots(data):
-    data.plot(kind='box', subplots=True, layout=(3, 3), sharex=False, sharey=False)
-    plt.show()
-
 def show_data_info(data):
     print("Number of instance: " + str(data.shape[0]))
     print("Number of fetures: " + str(data.shape[1]))
@@ -26,11 +27,11 @@ def show_data_info(data):
     print('------------------------------------------')
 
     print("Initial instances:\n")
-    print(data.head(10))
+    print(data.head(1314))
 
-    print("Numerical Information:\n")
-    numerical_info = data.iloc[:, :data.shape[1]]
-    print(numerical_info.describe())
+    #print("Numerical Information:\n")
+    #numerical_info = data.iloc[:, :data.shape[1]]
+    #print(numerical_info.describe())
 
 def get_feature_subset(data, *args):
     featureDict = []
@@ -54,7 +55,6 @@ def delete_missing_objects(data, type):
 
     return data
 
-
 def replace_missing_values_with_mean(data, column):
     temp = data[column].fillna(data[column].mean())
     data[column] = temp
@@ -62,54 +62,6 @@ def replace_missing_values_with_mean(data, column):
     return data
 
     plt.show()
-
-
-
-def lotArea_influye_salePrice(data):
-    
-    lotArea = data['LotArea'].value_counts()
-    lotAreaKeys = lotArea.keys()
-    priceArray=[]
-    keyArray = []
-    for number in lotAreaKeys:
-        subset = data.loc[data['LotArea'] == number]
-        #print('Area del lote:' + str(number))
-        #print(subset['SalePrice'])
-        keyArray.append(str(number))
-        priceArray.append(subset["SalePrice"].mean())
-
-    #print(numbHabKeys)
-    #print(priceArray)
-    
-
-    plt.bar(np.arange(len(priceArray)), priceArray, color="blue")
-
-    plt.ylabel('precio')
-    plt.xlabel('Tamano de terreno')
-    plt.title('Tamano terreno influye precio final')
-    plt.xticks(np.arange(0, len(keyArray)), keyArray)
-    plt.yticks(np.arange(0, max(priceArray), 20000))
-    plt.show()
-
-def poolArea_inluye_precio(data):
-    pool = data['PoolArea'].value_counts()
-    poolKeys = pool.keys()
-    priceArray = []
-    keyArray = []
-    for number in poolKeys:
-        subset = data.loc[data['PoolArea'] == number]
-        keyArray.append(str(number))
-        priceArray.append(subset["SalePrice"].mean())
-
-    plt.bar(np.arange(len(priceArray)), priceArray, color="blue")
-
-    plt.ylabel('precio')
-    plt.xlabel('Tamano pool')
-    plt.title('El tamano de la piscina influye en el precio')
-    plt.xticks(np.arange(0, len(keyArray)), keyArray)
-    plt.yticks(np.arange(0, max(priceArray), 20000))
-    plt.show()
-
 
 def drop_garage_features(data):
     dtd = data.drop('GarageYrBlt', 1)
@@ -127,9 +79,8 @@ def replace_mv_fence(data):
     data['Fence'] = data['Fence'].fillna('NoFence')
     return data
 
-
 def replace_missing_values_with_constant(data):
-    data['LotFrontage'] = data['LotFrontage'].fillna('-1')
+    data['LotFrontage'] = data['LotFrontage'].fillna(-1)
     return data
 
 def replace_missing_values_with_constant_alley(data):
@@ -150,45 +101,143 @@ def replace_mv_misc(data):
     data['MiscFeature'] = data['MiscFeature'].fillna('NoMisc')
     return data
 
+def replace_mv_MasVnrType(data):
+    data['MasVnrType'] = data['MasVnrType'].fillna('NA')
+    return data
+
+def replace_missing_values_with_mode(data):
+    mode = data['Electrical'].mode()
+    data['Electrical'] = data['Electrical'].fillna(mode.iloc[0])
+    return data
 
 
+def convert_data_to_numeric(data):
+    numpy_data = data.values
+
+    for i in range(len(numpy_data[0])):
+        temp = numpy_data[:,i]
+        print(numpy_data[:,i])
+        dict = np.unique(numpy_data[:,i])
+        print("---------------------------------------------")
+        print(i)
+        print(dict)
+        print("---------------------------------------------")
+        if type(dict[0]) == str:
+            for j in range(len(dict)):
+                temp[np.where(numpy_data[:,i] == dict[j])] = j
+            numpy_data[:,i] = temp
+    return numpy_data
+
+def z_score_normalization(data):
+    # import data
+    """num_features = len(data.columns) - 1
+    cols = data.columns
+    num_cols = data._get_numeric_data().columns
+    nominal_cols = list(set(cols) - set(num_cols))
+    data[nominal_cols] = convert_data_to_numeric(data[nominal_cols])
+    features = data[list(range(1, num_features))]
+    target = data[[num_features]]"""
+
+    features = data[:, 0:-1]
+    target = data[:, -1]
+
+    # First 10 rows
+    print('Training Data:\n\n' + str(features))
+    print('\n')
+    print('Targets:\n\n' + str(target))
+
+    # Data standarization
+    standardized_data = preprocessing.scale(features)
+
+    # First 10 rows of new feature vector
+    print('\nNew feature vector:\n')
+    print(standardized_data[:10])
+    print('\n\n')
+
+    new_data = np.append(standardized_data, target.reshape(target.shape[0], -1), axis=1)
+    print('\nNew array\n')
+    print(new_data)
+
+    return new_data
+
+def principal_components_analysis(n_components):
+    X = data
+    Y = target
+
+    # First 10 rows
+    print('Training Data:\n\n' + str(X[:10]))
+    print('\n')
+    print('Targets:\n\n' + str(Y[:10]))
+
+    # Model declaration
+    if n_components < 1:
+        pca = PCA(n_components = n_components, svd_solver = 'full')
+    else:
+        pca = PCA(n_components = n_components)
+
+    # Model training
+    pca.fit(X)
+
+    # Model transformation
+    new_feature_vector = pca.transform(X)
+
+    # Model information:
+    print('\nModel information:\n')
+    print('Number of components elected: ' + str(pca.n_components))
+    print('New feature dimension: ' + str(pca.n_components_))
+    print('Variance of every feature: ' + str(pca.explained_variance_ratio_))
+
+    # First 10 rows of new feature vector
+    print('\nNew feature vector:\n')
+    print(new_feature_vector[:10])
+    return new_feature_vector
 
 
+def min_max_scaler(data_without_target, target):
+    X = data_without_target
+    Y = target
+    # Data normalization
+    min_max_scaler = preprocessing.MinMaxScaler()
 
+    min_max_scaler.fit(X)
 
+    # Model information:
+    print('\nModel information:\n')
+    print('Data min: ' + str(min_max_scaler.data_min_))
+    print('Data max: ' + str(min_max_scaler.data_max_))
 
+    new_feature_vector = min_max_scaler.transform(X)
 
+    # First 10 rows of new feature vector
+    print('\nNew feature vector:\n')
+    print(new_feature_vector[:10])
+    print("---------------------- TERMINA NORMALIZACION")
+    return new_feature_vector
 
 
 if __name__ == '__main__':
     filePath = "train.csv"
 
     data = open_file(filePath)
-    
 
+    temp = drop_garage_features(data)
+    temp = replace_missing_values_with_constant(temp)
+    temp = replace_missing_values_with_constant_alley(temp)
+    temp = replace_mv_fence(temp)
+    temp = replace_mv_poolqc(temp)
+    temp = replace_mv_sotano(temp)
+    temp = replace_mv_misc(temp)
+    temp = replace_mv_fireplaces(temp)
+    temp = replace_mv_MasVnrType(temp)
+    temp = replace_missing_values_with_mode(temp)
+    #print(data['FireplaceQu'])
+    #print(temp['MSSubClass'])
+    for i in range(len(temp['Exterior2nd'])):
+        print(temp['Exterior2nd'][i])
+    #show_data_info(temp)
+    temp = convert_data_to_numeric(temp)
+    #z_score_normalization(data)
 
-    #headers = [x for x in data]
-    #print(headers)
-    #for head in headers:
-    #    if head != 'description' and head != 'features' and head != 'photos':
-    #        print(data[head].value_counts())
-    #print(data.head)
-    #show_data_info(data)
-    #print(data[0:10])
-    
-
-    #lotArea_influye_salePrice(data)
-    #poolArea_inluye_precio(data)
-    drop_garage_features(data)
-    replace_missing_values_with_constant(data)
-    replace_missing_values_with_constant_alley(data)
-    replace_mv_fence(data)
-    replace_mv_poolqc(data)
-    replace_mv_sotano(data)
-    replace_mv_misc(data)
-    replace_mv_fireplaces(data)
-    print(data['FireplaceQu'])
-    show_data_info(data)
     #print(data['BsmtCond'])
 
     #create_histogram(data)
