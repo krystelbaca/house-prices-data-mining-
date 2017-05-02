@@ -18,6 +18,18 @@ from pandas.tools.plotting import scatter_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn import metrics
+from sklearn.decomposition import PCA
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import ExtraTreesRegressor
+from sklearn.feature_selection import SelectFromModel
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 def open_file(fileName):
     data = pd.read_csv(fileName)
@@ -207,9 +219,51 @@ def principal_components_analysis(data, n_components):
     print(new_feature_vector[:10])
     return new_feature_vector
 
+def attribute_subset_selection_with_trees(data, type):
+    features = data[:, 0:-1]
+    target = data[:, -1]
+    feature_vector = features
+    targets = target
 
-def min_max_scaler(data_without_target, target):
-    X = data_without_target
+    """
+    This function use gain info to select the best features of a numpy array
+    :param type: Classification or Regression
+    :param feature_vector: Numpy array to be transformed
+    :param targets: feature vector targets
+    :return: Numpy array with the selected features
+    """
+
+    if type == 'Regression':
+        extra_tree = ExtraTreesRegressor()
+    else:
+        # Model declaration
+        extra_tree = ExtraTreesClassifier()
+
+    # Model training
+    extra_tree.fit(feature_vector, targets)
+
+    # Model information:
+    logger.debug('Model information:')
+
+    # display the relative importance of each attribute
+    logger.debug('Importance of every feature: %s', extra_tree.feature_importances_)
+
+    # If model was training before prefit = True
+    model = SelectFromModel(extra_tree, prefit=True)
+
+    # Model transformation
+    new_feature_vector = model.transform(feature_vector)
+
+    # First 10 rows of new feature vector
+    logger.debug('New feature vector: %s', new_feature_vector[:10])
+
+    return new_feature_vector
+
+
+def min_max_scaler(data):
+    features = data[:, 0:-1]
+    target = data[:, -1]
+    X = features
     Y = target
     # Data normalization
     min_max_scaler = preprocessing.MinMaxScaler()
@@ -274,6 +328,55 @@ if __name__ == '__main__':
 
     data = open_file(filePath)
 
+    #PRIMERA ITERACION
+    #temp = drop_garage_features(data)
+    #temp = replace_missing_values_with_constant(temp)
+    #temp = replace_missing_values_with_constant_alley(temp)
+    '''temp = replace_mv_fence(temp)
+    temp = replace_mv_poolqc(temp)
+    temp = replace_mv_sotano(temp)
+    temp = replace_mv_misc(temp)
+    temp = replace_mv_fireplaces(temp)
+    temp = replace_mv_MasVnrType(temp)
+    temp = replace_mv_MasVnrArea(temp)
+    temp = replace_missing_values_electrical(temp)'''
+    #temp['MSSubClass'] = reject_outliers(temp['MSSubClass'])
+    #temp['OverallQual'] = reject_outliers(temp['OverallQual'])
+    #temp['OverallCond'] = reject_outliers(temp['OverallCond'])
+    #temp['1stFlrSF'] = reject_outliers(temp['1stFlrSF'])
+    #temp['2ndFlrSF'] = reject_outliers(temp['2ndFlrSF'])
+    #temp['BsmtFullBath'] = reject_outliers(temp['BsmtFullBath'])
+
+    #temp = convert_data_to_numeric(temp)
+    #temp = z_score_normalization(temp)
+    #temp = principal_components_analysis(temp, .90)
+    #decision_tree_training(temp)
+
+    # Segunda ITERACION
+    '''temp = drop_garage_features(data)
+    temp = replace_missing_values_with_constant(temp)
+    temp = replace_missing_values_with_constant_alley(temp)
+    temp = replace_mv_fence(temp)
+    temp = replace_mv_poolqc(temp)
+    temp = replace_mv_sotano(temp)
+    temp = replace_mv_misc(temp)
+    temp = replace_mv_fireplaces(temp)
+    temp = replace_mv_MasVnrType(temp)
+    temp = replace_mv_MasVnrArea(temp)
+    temp = replace_missing_values_electrical(temp)
+    # temp['MSSubClass'] = reject_outliers(temp['MSSubClass'])
+    # temp['OverallQual'] = reject_outliers(temp['OverallQual'])
+    # temp['OverallCond'] = reject_outliers(temp['OverallCond'])
+    # temp['1stFlrSF'] = reject_outliers(temp['1stFlrSF'])
+    # temp['2ndFlrSF'] = reject_outliers(temp['2ndFlrSF'])
+    # temp['BsmtFullBath'] = reject_outliers(temp['BsmtFullBath'])
+
+    temp = convert_data_to_numeric(temp)
+    temp = min_max_scaler(temp)
+    temp = attribute_subset_selection_with_trees(temp, "Regression")
+    decision_tree_training(temp)'''
+
+    # Tercera ITERACION
     temp = drop_garage_features(data)
     temp = replace_missing_values_with_constant(temp)
     temp = replace_missing_values_with_constant_alley(temp)
@@ -285,25 +388,15 @@ if __name__ == '__main__':
     temp = replace_mv_MasVnrType(temp)
     temp = replace_mv_MasVnrArea(temp)
     temp = replace_missing_values_electrical(temp)
-    #temp['MSSubClass'] = reject_outliers(temp['MSSubClass'])
-    #temp['OverallQual'] = reject_outliers(temp['OverallQual'])
-    #temp['OverallCond'] = reject_outliers(temp['OverallCond'])
-    #temp['1stFlrSF'] = reject_outliers(temp['1stFlrSF'])
-    #temp['2ndFlrSF'] = reject_outliers(temp['2ndFlrSF'])
-    #temp['BsmtFullBath'] = reject_outliers(temp['BsmtFullBath'])
+    # temp['MSSubClass'] = reject_outliers(temp['MSSubClass'])
+    # temp['OverallQual'] = reject_outliers(temp['OverallQual'])
+    # temp['OverallCond'] = reject_outliers(temp['OverallCond'])
+    # temp['1stFlrSF'] = reject_outliers(temp['1stFlrSF'])
+    # temp['2ndFlrSF'] = reject_outliers(temp['2ndFlrSF'])
+    # temp['BsmtFullBath'] = reject_outliers(temp['BsmtFullBath'])
 
-    #print(data['FireplaceQu'])
-    #print(temp['MSSubClass'])
-    #for i in range(len(temp['Exterior2nd'])):
-       # print(temp['Exterior2nd'][i])
-    #show_data_info(temp)
-    #create_whisker_plot(temp)
     temp = convert_data_to_numeric(temp)
     temp = z_score_normalization(temp)
-    temp = principal_components_analysis(temp, .90)
+    temp = attribute_subset_selection_with_trees(temp, "Regression")
     decision_tree_training(temp)
 
-    #print(data['BsmtCond'])
-
-    #create_histogram(data)
-    #create_density_plot(data)
