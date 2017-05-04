@@ -296,10 +296,12 @@ def data_splitting(data_features, data_targets, test_size):
 
     return data_features_train, data_features_test, data_targets_train, data_targets_test
 
-def decision_tree_training(data):
+def decision_tree_training(data,targets):
 
     feature_vector = data[:, 0:-1]
-    targets = data[:, -1]
+    #targets = data[:, -1]
+
+
 
     data_features_train, data_features_test, data_targets_train, data_targets_test = \
         train_test_split(feature_vector,
@@ -327,7 +329,7 @@ if __name__ == '__main__':
     filePath = "training_data.csv"
 
     data = open_file(filePath)
-
+    targets = np.array(data)[:, -1]
     #PRIMERA ITERACION
     #temp = drop_garage_features(data)
     #temp = replace_missing_values_with_constant(temp)
@@ -374,7 +376,7 @@ if __name__ == '__main__':
     temp = convert_data_to_numeric(temp)
     temp = min_max_scaler(temp)
     temp = attribute_subset_selection_with_trees(temp, "Regression")
-    decision_tree_training(temp)
+    decision_tree_training(temp, targets)
 
     # Tercera ITERACION
     '''temp = drop_garage_features(data)
