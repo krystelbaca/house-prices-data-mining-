@@ -301,12 +301,10 @@ def decision_tree_training(data,targets):
     feature_vector = data[:, 0:-1]
     #targets = data[:, -1]
 
-
-
     data_features_train, data_features_test, data_targets_train, data_targets_test = \
         train_test_split(feature_vector,
                          targets,
-                         test_size=0.25)
+                         test_size=0.25, random_state=1200)
 
     # Model declaration
     """
